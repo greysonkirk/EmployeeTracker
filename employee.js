@@ -36,7 +36,7 @@ function askUser() {
             } else if (response.action == 'Departments') {
                 departments();
 
-            } else if (response.action == 'Roles') {
+            } else if (response.action == 'Roles\n') {
                 roles();
 
             } else(console.log("somethings wrong"))
@@ -229,3 +229,284 @@ function deleteEmp() {
 function init() {
     console.log("\x1b[31m", "STARTING EMPLOYEE MANAGER")
 }
+
+
+
+function departments() {
+
+    inquirer
+        .prompt([{
+            type: 'checkbox',
+            name: 'action',
+            message: "What do you want to do? \n",
+            choices: ['Add Department', 'Update Department', 'Remove Department\n']
+        }])
+        .then((response) => {
+            if (response.action == 'Add Department') {
+                addDepartment();
+
+            } else if (response.action == 'Update Department') {
+                updateDepartment();
+
+            } else if (response.action == 'Remove Department\n') {
+                deleteDepartment();
+
+            } else(console.log("somethings wrong"))
+
+        });
+
+};
+
+
+function addDepartment() {
+    inquirer
+        .prompt([{
+            name: "dept",
+            type: "input",
+            message: "What is the name of the new department?"
+        }])
+        .then(function(answer) {
+
+            connection.query("INSERT INTO department SET ?", {
+                    name: answer.dept,
+                },
+                function(err, response) {
+                    if (err) throw err;
+                    console.log("Department succesfully added!!!")
+                }
+
+            )
+        })
+};
+
+
+
+
+function updateDepartment() {
+
+    connection.query("SELECT * FROM department", function(err, departments) {
+        if (err) throw err;
+
+        inquirer
+            .prompt([{
+                name: "department",
+                type: "list",
+                choices: departments.map(department => ({ name: department.name, value: department })),
+                message: "Which department would you like to update?"
+            }])
+            .then(function(answer) {
+                console.log("UPDATING: " + answer.department.name + " ID: " + answer.department.id)
+
+                inquirer
+                    .prompt([{
+                        name: "dept",
+                        type: "input",
+                        message: "What is the departments new name?"
+                    }]).then(response => {
+                        connection.query("UPDATE department SET ? WHERE ?", [{
+                                name: response.dept
+                            },
+                            {
+                                id: answer.department.id
+                            }
+                        ], function() {
+                            if (err) throw err;
+                            console.log("department recived")
+                        })
+                    })
+            });
+
+    })
+};
+
+
+function deleteDepartment() {
+
+    connection.query("SELECT * FROM department", function(err, departments) {
+        if (err) throw err;
+
+        inquirer
+            .prompt([{
+                name: "department",
+                type: "list",
+                choices: departments.map(department => ({ name: department.name, value: department })),
+                message: "Which department would you like to delete?"
+            }, {
+                name: "confirm",
+                type: "confirm",
+                message: "Are you sure you want to do this?"
+            }])
+            .then(function(answer) {
+                if (answer.confirm) {
+                    console.log("\x1b[31m", "DELETING: " + answer.department.name + " ID: " + answer.department.id)
+                    connection.query("DELETE FROM department where ? ", { id: answer.department.id }, function(err) {
+                        if (err) throw err;
+                        console.log("\x1b[31m", answer.department.name + " " + answer.department.last_name + " was deleted")
+                    })
+                } else { askUser(); }
+
+            });
+
+    })
+};
+
+
+
+
+function roles() {
+
+    inquirer
+        .prompt([{
+            type: 'checkbox',
+            name: 'action',
+            message: "What do you want to do? \n",
+            choices: ['Add Role', 'Update Role', 'Remove Role\n']
+        }])
+        .then((response) => {
+            if (response.action == 'Add Role') {
+                addRole();
+
+            } else if (response.action == 'Update Role') {
+                updateRole();
+
+            } else if (response.action == 'Remove Role\n') {
+                deleteRole();
+
+            } else(console.log("somethings wrong"))
+
+        });
+
+};
+
+
+function addRole() {
+    inquirer
+        .prompt([{
+            name: "name",
+            type: "input",
+            message: "What is the name of the new role?"
+        }, {
+            name: "salary",
+            type: "input",
+            message: "What is the salary of the new role?"
+        }])
+        .then(function(answer) {
+            connection.query("SELECT * FROM department", function(err, depts) {
+                inquirer
+                    .prompt([{
+                        name: "dept",
+                        type: "list",
+                        choices: depts.map(dept => ({ name: dept.name, value: dept })),
+                        message: "Which department does this role belong to??"
+                    }]).then(resp => {
+                        connection.query("INSERT INTO role SET ?", {
+                                title: answer.name,
+                                salary: answer.salary,
+                                department_id: resp.dept.id
+
+                            },
+                            function(err, response) {
+                                if (err) throw err;
+                                console.log("role succesfully added!!!")
+                            }
+
+                        )
+                    })
+            })
+
+
+        })
+};
+
+
+
+
+function updateRole() {
+
+    connection.query("SELECT * FROM role", function(err, roles) {
+        if (err) throw err;
+
+        inquirer
+            .prompt([{
+                name: "role",
+                type: "list",
+                choices: roles.map(role => ({ name: role.title, value: role })),
+                message: "Which role would you like to update?"
+            }])
+            .then(function(answer) {
+                console.log("UPDATING: " + answer.role.title + " ID: " + answer.role.id)
+
+                inquirer
+                    .prompt([{
+                        name: "name",
+                        type: "input",
+                        message: "What is the roles new name?"
+                    }, {
+                        name: "salary",
+                        type: "input",
+                        message: "What is the roles new salary?"
+                    }, {
+                        name: "dept",
+                        type: "input",
+                        message: "What is the roles new department?"
+                    }]).then(function(answer) {
+                        connection.query("SELECT * FROM department", function(err, depts) {
+                            inquirer
+                                .prompt([{
+                                    name: "dept",
+                                    type: "list",
+                                    choices: depts.map(dept => ({ name: dept.name, value: dept })),
+                                    message: "What is the roles new department?"
+                                }]).then(resp => {
+                                    connection.query("INSERT INTO role SET ?", {
+                                            title: answer.name,
+                                            salary: answer.salary,
+                                            department_id: resp.dept.id
+
+                                        },
+                                        function(err, response) {
+                                            if (err) throw err;
+                                            console.log("role succesfully added!!!")
+                                        }
+
+                                    )
+                                })
+                        })
+
+
+                    })
+            });
+
+    })
+};
+
+
+function deleteRole() {
+
+    connection.query("SELECT * FROM role", function(err, roles) {
+        if (err) throw err;
+
+        inquirer
+            .prompt([{
+                name: "role",
+                type: "list",
+                choices: roles.map(role => ({ name: role.title, value: role })),
+                message: "Which role would you like to delete?"
+            }, {
+                name: "confirm",
+                type: "confirm",
+                message: "Are you sure you want to do this?"
+            }])
+            .then(function(answer) {
+                if (answer.confirm) {
+                    console.log("\x1b[31m", "DELETING: " + answer.role.title + " ID: " + answer.role.id)
+                    connection.query("DELETE FROM role where ? ", { id: answer.role.id }, function(err) {
+                        if (err) throw err;
+                        console.log("\x1b[31m", answer.role.title + " was deleted")
+                    })
+                } else { askUser(); }
+
+            });
+
+    })
+};
