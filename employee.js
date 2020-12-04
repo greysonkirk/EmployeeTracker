@@ -458,10 +458,6 @@ function updateRole() {
                         name: "salary",
                         type: "input",
                         message: "What is the roles new salary?"
-                    }, {
-                        name: "dept",
-                        type: "input",
-                        message: "What is the roles new department?"
                     }]).then(function(answer) {
                         connection.query("SELECT * FROM department", function(err, depts) {
                             inquirer
