@@ -7,6 +7,7 @@ first_name varchar(30) NOT NULL,
 last_name varchar(30) NOT NULL,
 role_id INT NOT NULL,
 manager_id int,
+is_manager bool, 
 PRIMARY KEY (id)
 );
 
@@ -43,23 +44,22 @@ VALUES("CTO",200000.00,2),
 ("Paralegal",70000.00,3),
 ("Legal Secretary",35000.00,3);
 
-INSERT INTO employee (first_name,last_name,role_id,manager_id)
-VALUES('Lois','Walker',1,null),
-('Brenda','Robinson',2,1),
-('Diane','Evans',3,2),
-('Benjamin','Russell',3,2),
-('Patrick','Bailey',3,2),
-('Nancy','Baker',4,1),
-('Carol','Murphy',5,7),
-('Frances','Young',5,7),
-('Diana','Peterson',5,7),
-('Ralph','Flores',5,7),
-('Jack','Alexander',5,7),
-('Melissa','King',6,1),
-('Wayne','Watson',7,13),
-('Cheryl','Scott',7,13),
-('Paula','Diaz',8,1),
-('Joshua','Stewart',9,16),
-('Theresa','Lee',10,16);
-
+INSERT INTO employee (first_name,last_name,role_id,manager_id,is_manager)
+VALUES('Lois','Walker',1,null,TRUE),
+('Brenda','Robinson',2,1,TRUE),
+('Diane','Evans',3,2,FALSE),
+('Benjamin','Russell',3,2,FALSE),
+('Patrick','Bailey',3,2,FALSE),
+('Nancy','Baker',4,1,TRUE),
+('Carol','Murphy',5,7,FALSE),
+('Frances','Young',5,7,FALSE),
+('Diana','Peterson',5,7,FALSE),
+('Ralph','Flores',5,7,FALSE),
+('Jack','Alexander',5,7,FALSE),
+('Melissa','King',6,1,FALSE),
+('Wayne','Watson',7,13,FALSE),
+('Cheryl','Scott',7,13,FALSE),
+('Paula','Diaz',8,1,TRUE),
+('Joshua','Stewart',9,16,FALSE),
+('Theresa','Lee',10,16,FALSE);
 
