@@ -64,7 +64,10 @@ function employees() {
             } else if (response.action == 'Remove Employee\n') {
                 deleteEmp();
 
-            } else(console.log("somethings wrong"))
+            } else {
+                console.log("\x1b[31m", "You must make a choice");
+                employees();
+            }
 
         });
 
@@ -105,7 +108,7 @@ function addEmp() {
                             choices: managers.map(manager => ({ name: manager.first_name + " " + manager.last_name, value: manager.id })),
                             message: "What is the employees manager?"
                         }]).then(function(response) {
-                            console.log(answer.empRole)
+                            // console.log(answer.empRole)
 
                             connection.query("INSERT INTO employee SET ?", {
                                     first_name: answer.empFirst,
@@ -115,7 +118,8 @@ function addEmp() {
                                 },
                                 function(err, response) {
                                     if (err) throw err;
-                                    console.log("Employee succesfully added!!!")
+                                    console.log("Employee succesfully added!!!");
+                                    toDo("employee");
                                 }
 
                             )
@@ -153,7 +157,7 @@ function updateEmp() {
                                 choices: roles.map(role => ({ name: role.id + " " + role.title, value: role.id })),
                                 message: "What is the employees role?"
                             }]).then(response => {
-                                console.log(response.empRole);
+                                // console.log(response.empRole);
                                 connection.query("UPDATE employee SET ? WHERE ?", [{
                                         role_id: response.empRole
                                     },
@@ -162,7 +166,7 @@ function updateEmp() {
                                     }
                                 ], function() {
                                     if (err) throw err;
-                                    console.log("role recived")
+                                    // console.log("role recived")
                                 })
                             }).then(response => {
                                 connection.query("SELECT * FROM employee WHERE is_manager = 1", function(err, managers) {
@@ -180,7 +184,8 @@ function updateEmp() {
                                                 id: answer.employee.id
                                             }], function(err, response) {
                                                 if (err) throw err;
-                                                console.log("Employee has been updated!!!")
+                                                console.log("Employee has been updated!!!");
+                                                toDo("employee");
                                             });
                                         })
                                 })
@@ -217,18 +222,16 @@ function deleteEmp() {
                     console.log("\x1b[31m", "DELETING: " + answer.employee.first_name + " " + answer.employee.last_name + " ID: " + answer.employee.id)
                     connection.query("DELETE FROM employee where ? ", { id: answer.employee.id }, function(err) {
                         if (err) throw err;
-                        console.log("\x1b[31m", answer.employee.first_name + " " + answer.employee.last_name + " was deleted")
+                        console.log("\x1b[31m", answer.employee.first_name + " " + answer.employee.last_name + " was deleted");
+                        toDo("employee");
                     })
-                } else { askUser(); }
+                } else { toDo("employee"); }
 
             });
 
     })
 };
 
-function init() {
-    console.log("\x1b[31m", "STARTING EMPLOYEE MANAGER")
-}
 
 
 
@@ -251,7 +254,10 @@ function departments() {
             } else if (response.action == 'Remove Department\n') {
                 deleteDepartment();
 
-            } else(console.log("somethings wrong"))
+            } else {
+                console.log("\x1b[31m", "You must make a choice");
+                departments();
+            }
 
         });
 
@@ -272,7 +278,8 @@ function addDepartment() {
                 },
                 function(err, response) {
                     if (err) throw err;
-                    console.log("Department succesfully added!!!")
+                    console.log("Department succesfully added!!!");
+                    toDo("department");
                 }
 
             )
@@ -311,7 +318,8 @@ function updateDepartment() {
                             }
                         ], function() {
                             if (err) throw err;
-                            console.log("department recived")
+                            console.log("department recived");
+                            toDo("department");
                         })
                     })
             });
@@ -341,9 +349,10 @@ function deleteDepartment() {
                     console.log("\x1b[31m", "DELETING: " + answer.department.name + " ID: " + answer.department.id)
                     connection.query("DELETE FROM department where ? ", { id: answer.department.id }, function(err) {
                         if (err) throw err;
-                        console.log("\x1b[31m", answer.department.name + " " + answer.department.last_name + " was deleted")
+                        console.log("\x1b[31m", answer.department.name + " " + answer.department.last_name + " was deleted");
+                        toDo("department");
                     })
-                } else { askUser(); }
+                } else { toDo("department"); }
 
             });
 
@@ -372,7 +381,10 @@ function roles() {
             } else if (response.action == 'Remove Role\n') {
                 deleteRole();
 
-            } else(console.log("somethings wrong"))
+            } else {
+                console.log("\x1b[31m", "You must make a choice");
+                roles();
+            }
 
         });
 
@@ -408,6 +420,7 @@ function addRole() {
                             function(err, response) {
                                 if (err) throw err;
                                 console.log("role succesfully added!!!")
+                                toDo("role");
                             }
 
                         )
@@ -467,6 +480,7 @@ function updateRole() {
                                         function(err, response) {
                                             if (err) throw err;
                                             console.log("role succesfully added!!!")
+                                            toDo("role");
                                         }
 
                                     )
@@ -502,11 +516,37 @@ function deleteRole() {
                     console.log("\x1b[31m", "DELETING: " + answer.role.title + " ID: " + answer.role.id)
                     connection.query("DELETE FROM role where ? ", { id: answer.role.id }, function(err) {
                         if (err) throw err;
-                        console.log("\x1b[31m", answer.role.title + " was deleted")
+                        console.log("\x1b[31m", answer.role.title + " was deleted");
+                        toDo("role");
                     })
-                } else { askUser(); }
+                } else { toDo("role"); }
 
             });
 
     })
 };
+
+function toDo(section) {
+    inquirer
+        .prompt([{
+            name: "question",
+            type: "list",
+            choices: ["Stay Here", "Start Over"]
+        }]).then(function(resp) {
+
+            console.log(resp.question);
+            console.log(section);
+
+            if (resp.question === "Stay Here" && section == "employee") {
+                employees();
+            } else if (resp.question === "Stay Here" && section == "department") {
+                departments();
+            } else if (resp.question === "Stay Here" && section === "role") {
+                roles();
+            } else(askUser());
+        });
+}
+
+function init() {
+    console.log("\x1b[31m", "STARTING EMPLOYEE MANAGER")
+}
