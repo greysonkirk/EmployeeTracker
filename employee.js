@@ -3,6 +3,7 @@ const inquirer = require("inquirer");
 const { inherits } = require("util");
 const { report } = require("process");
 
+
 var connection = mysql.createConnection({
     host: "localhost",
     // Your port; if not 3306
@@ -31,13 +32,29 @@ function askUser() {
         }])
         .then((response) => {
             if (response.action == 'Employees') {
-                employees();
+                connection.query(`SELECT distinct e.*,CONCAT(m.first_name," ",m.last_name) as Manager  from employeedb.employee e 
+                left join employeedb.employee m on e.manager_id = m.id`, function(err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    employees();
+                });
 
             } else if (response.action == 'Departments') {
-                departments();
+                connection.query("SELECT * FROM department", function(err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    departments();
+                });
+
 
             } else if (response.action == 'Roles\n') {
-                roles();
+                connection.query(`SELECT r.*,d.name as Department from employeedb.role r 
+                left JOIN employeedb.department d on r.department_id = d.id`, function(err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    roles();
+                });
+
 
             } else(console.log("somethings wrong"))
 
@@ -55,6 +72,7 @@ function employees() {
             choices: ['Add Employee', 'Update Employee', 'Remove Employee\n']
         }])
         .then((response) => {
+
             if (response.action == 'Add Employee') {
                 addEmp();
 
@@ -233,7 +251,30 @@ function deleteEmp() {
 };
 
 
+function toDo(section) {
+    inquirer
+        .prompt([{
+            name: "question",
+            type: "list",
+            choices: ["Stay Here", "Start Over"]
+        }]).then(function(resp) {
 
+            console.log(resp.question);
+            console.log(section);
+
+            if (resp.question === "Stay Here" && section == "employee") {
+                employees();
+            } else if (resp.question === "Stay Here" && section == "department") {
+                departments();
+            } else if (resp.question === "Stay Here" && section === "role") {
+                roles();
+            } else(askUser());
+        });
+}
+
+function init() {
+    console.log("\x1b[31m", "STARTING EMPLOYEE MANAGER")
+}
 
 function departments() {
 
@@ -359,7 +400,26 @@ function deleteDepartment() {
     })
 };
 
+function toDo(section) {
+    inquirer
+        .prompt([{
+            name: "question",
+            type: "list",
+            choices: ["Stay Here", "Start Over"]
+        }]).then(function(resp) {
 
+            console.log(resp.question);
+            console.log(section);
+
+            if (resp.question === "Stay Here" && section == "employee") {
+                employees();
+            } else if (resp.question === "Stay Here" && section == "department") {
+                departments();
+            } else if (resp.question === "Stay Here" && section === "role") {
+                roles();
+            } else(askUser());
+        });
+}
 
 
 function roles() {
@@ -539,10 +599,6 @@ function toDo(section) {
                 departments();
             } else if (resp.question === "Stay Here" && section === "role") {
                 roles();
-            } else(askUser());
+            } else { askUser() };
         });
-}
-
-function init() {
-    console.log("\x1b[31m", "STARTING EMPLOYEE MANAGER")
 }

@@ -11,3 +11,4 @@
 This app is a command line interface that allows the user to manage employees, roles, and departments. 
 This app uses MySQL and Inquirer.js to function.
 
+![](assets/DemoGif.gif)
