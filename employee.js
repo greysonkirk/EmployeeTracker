@@ -61,7 +61,7 @@ function employees() {
             } else if (response.action == 'Update Employee') {
                 updateEmp();
 
-            } else if (response.action == 'Remove Employee') {
+            } else if (response.action == 'Remove Employee\n') {
                 deleteEmp();
 
             } else(console.log("somethings wrong"))
@@ -195,6 +195,36 @@ function updateEmp() {
     });
 };
 
+
+function deleteEmp() {
+
+    connection.query("SELECT * FROM employee", function(err, employees) {
+        if (err) throw err;
+
+        inquirer
+            .prompt([{
+                name: "employee",
+                type: "list",
+                choices: employees.map(employee => ({ name: employee.first_name + " " + employee.last_name, value: employee })),
+                message: "Which employee would you like to delete?"
+            }, {
+                name: "confirm",
+                type: "confirm",
+                message: "Are you sure you want to do this?"
+            }])
+            .then(function(answer) {
+                if (answer.confirm) {
+                    console.log("\x1b[31m", "DELETING: " + answer.employee.first_name + " " + answer.employee.last_name + " ID: " + answer.employee.id)
+                    connection.query("DELETE FROM employee where ? ", { id: answer.employee.id }, function(err) {
+                        if (err) throw err;
+                        console.log("\x1b[31m", answer.employee.first_name + " " + answer.employee.last_name + " was deleted")
+                    })
+                } else { askUser(); }
+
+            });
+
+    })
+};
 
 function init() {
     console.log("\x1b[31m", "STARTING EMPLOYEE MANAGER")
